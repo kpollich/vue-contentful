@@ -1,13 +1,7 @@
 <template>
   <ul class="post-list">
-    <li class="post-list-item" v-for="post in posts" :key="post.id">
-      <div class="post-header">
-        <h2 class="post-title">{{ post.title }}</h2>
-        <span class="post-date">{{ post.displayDate }}</span>
-      </div>
-
-      <h3 class="post-subtitle">{{ post.subtitle }}</h3>
-    </li>
+    <post-list-item v-for="post in posts" v-bind:post="post" v-bind:key="post.id">
+    </post-list-item>
   </ul>
 </template>
 
@@ -15,8 +9,11 @@
 import contentful from '../lib/contentful'
 import moment from 'moment'
 
+import PostListItem from './PostListItem'
+
 export default {
   name: 'post-list',
+  components: { PostListItem },
 
   data () {
     return {
@@ -36,6 +33,7 @@ export default {
         const posts = (await contentful.getEntries({ content_type: 'posts' }))
           .items
           .map(item => item.fields)
+          .sort((first, second) => first.datePublished < second.datePublished)
 
         posts.forEach(post => {
           post.displayDate = moment(post.datePublished).format('MMMM Do YYYY')
@@ -57,26 +55,5 @@ export default {
   list-style: none;
   padding: 0;
   margin-left: 1em;
-}
-
-.post-list-item {
-  margin: .5em 0;
-}
-
-.post-title {
-  display: inline-block;
-  margin-right: .3em;
-}
-
-.post-date {
-  color: grey;
-}
-
-.post-subtitle {
-  margin-top: 0;
-}
-
-.post-title, .post-subtitle {
-   font-weight: normal;
 }
 </style>
